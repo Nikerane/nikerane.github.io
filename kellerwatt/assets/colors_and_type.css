@@ -1,0 +1,229 @@
+/* ============================================================
+   Gridkin — Colors & Type
+   The full token foundation. Import this and inherit a brand.
+   ============================================================ */
+
+/* ---------- Webfonts (Google Fonts) ------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- Brand palette ---------- */
+  /* Hearth — primary. Carries identity. Deep, forest-green-with-warmth. */
+  --gk-hearth:        #1F3A34;
+  --gk-hearth-ink:    #142621; /* pressed / shadow variant */
+  --gk-hearth-soft:   #2A4A43; /* subtle hover lift on dark */
+
+  /* Ember — accent. The single bright moment, never decoration. */
+  --gk-ember:         #E89B4F;
+  --gk-ember-deep:    #C77A2C; /* pressed / iconography fallback */
+  --gk-ember-wash:    #F4D9B8; /* tint, badges, inline highlights */
+
+  /* Dusk — secondary. For depth, never spotlight. */
+  --gk-dusk:          #4A3850;
+  --gk-dusk-soft:     #6A5A70;
+
+  /* Bone — surface. The default page colour. Warm off-white. */
+  --gk-bone:          #F5F1EA;
+  --gk-bone-deep:     #EBE5D8; /* card on bone, subtle elevation */
+
+  /* Stone — divider / quiet rail. */
+  --gk-stone:         #E8E2D7;
+  --gk-stone-soft:    #D8D2C5;
+
+  /* Slate — primary text on light. */
+  --gk-slate:         #2C2E2D;
+  --gk-slate-soft:    #5B5D5C;
+  --gk-slate-mute:    #8A8C8B;
+
+  /* Pure neutrals — used sparingly */
+  --gk-paper:         #FBF8F2; /* one shade lighter than bone, for cards-on-bone */
+  --gk-ink:           #0E1816; /* near-black, almost never used */
+
+  /* Semantic */
+  --gk-positive:      #4A7A5C; /* savings up, battery healthy */
+  --gk-warning:       #C77A2C; /* peak tariff */
+  --gk-critical:      #8E2F2F; /* outage / fault */
+
+  /* ---------- Backgrounds / surfaces ---------- */
+  --gk-bg:            var(--gk-bone);
+  --gk-bg-elevated:   var(--gk-paper);
+  --gk-bg-inverse:    var(--gk-hearth);
+  --gk-surface-quiet: var(--gk-bone-deep);
+
+  /* ---------- Foregrounds ---------- */
+  --gk-fg-1:          var(--gk-slate);      /* primary text */
+  --gk-fg-2:          var(--gk-slate-soft); /* secondary */
+  --gk-fg-3:          var(--gk-slate-mute); /* tertiary, eyebrows */
+  --gk-fg-brand:      var(--gk-hearth);     /* headlines, links */
+  --gk-fg-accent:     var(--gk-ember-deep); /* accent-on-light reliable contrast */
+  --gk-fg-on-dark-1:  var(--gk-bone);
+  --gk-fg-on-dark-2:  rgba(245,241,234, 0.62);
+  --gk-fg-on-dark-3:  rgba(245,241,234, 0.40);
+
+  /* ---------- Borders ---------- */
+  --gk-border:        rgba(44,46,45, 0.10);
+  --gk-border-strong: rgba(44,46,45, 0.22);
+  --gk-border-on-dark:rgba(245,241,234, 0.14);
+  --gk-hairline:      0.5px solid var(--gk-border);
+
+  /* ---------- Type families ---------- */
+  --gk-font-serif:    "Fraunces", "Iowan Old Style", Georgia, serif;
+  --gk-font-sans:     "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --gk-font-mono:     "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* ---------- Type scale (semantic) ---------- */
+  /* Editorial. Big serif moments. Sans for everything functional. */
+
+  /* Display — hero serif moments. Deck covers, hero statements. */
+  --gk-display-1-size:    76px;
+  --gk-display-1-leading: 1.0;
+  --gk-display-1-tracking:-0.030em;
+  --gk-display-1-weight:  500;
+
+  --gk-display-2-size:    56px;
+  --gk-display-2-leading: 1.05;
+  --gk-display-2-tracking:-0.022em;
+  --gk-display-2-weight:  500;
+
+  /* Headline — section openers, slide titles. */
+  --gk-h1-size:           38px;
+  --gk-h1-leading:        1.08;
+  --gk-h1-tracking:      -0.015em;
+  --gk-h1-weight:         500;
+
+  --gk-h2-size:           28px;
+  --gk-h2-leading:        1.15;
+  --gk-h2-tracking:      -0.012em;
+  --gk-h2-weight:         500;
+
+  --gk-h3-size:           20px;
+  --gk-h3-leading:        1.25;
+  --gk-h3-tracking:      -0.008em;
+  --gk-h3-weight:         600;
+
+  /* Body — Inter, the workhorse. */
+  --gk-body-lg-size:      18px;
+  --gk-body-lg-leading:   1.55;
+  --gk-body-size:         16px;
+  --gk-body-leading:      1.55;
+  --gk-body-sm-size:      14px;
+  --gk-body-sm-leading:   1.5;
+  --gk-caption-size:      13px;
+  --gk-caption-leading:   1.45;
+
+  /* Eyebrow / overline — Mono, tracked out, uppercase. The "ALL CAPS THE PROBLEM" voice. */
+  --gk-eyebrow-size:      10px;
+  --gk-eyebrow-tracking:  0.20em;
+  --gk-eyebrow-weight:    500;
+
+  /* Mono — data, tariffs, savings counters, chart axes. */
+  --gk-data-xl-size:      36px;
+  --gk-data-lg-size:      22px;
+  --gk-data-size:         15px;
+  --gk-data-sm-size:      12px;
+
+  /* ---------- Radii ---------- */
+  /* Generally soft. Hearth icon-tile is the 18px reference. */
+  --gk-radius-xs:  4px;
+  --gk-radius-sm:  8px;
+  --gk-radius-md:  12px;
+  --gk-radius-lg:  18px;
+  --gk-radius-xl:  24px;
+  --gk-radius-pill:999px;
+
+  /* ---------- Spacing (4-base) ---------- */
+  --gk-space-0:  0;
+  --gk-space-1:  4px;
+  --gk-space-2:  8px;
+  --gk-space-3:  12px;
+  --gk-space-4:  16px;
+  --gk-space-5:  20px;
+  --gk-space-6:  24px;
+  --gk-space-8:  32px;
+  --gk-space-10: 40px;
+  --gk-space-12: 48px;
+  --gk-space-16: 64px;
+  --gk-space-20: 80px;
+  --gk-space-24: 96px;
+
+  /* ---------- Shadows — quiet, never dramatic ---------- */
+  --gk-shadow-1:  0 1px 0 rgba(44,46,45, 0.04), 0 1px 2px rgba(44,46,45, 0.04);
+  --gk-shadow-2:  0 1px 0 rgba(44,46,45, 0.05), 0 6px 16px -8px rgba(44,46,45, 0.12);
+  --gk-shadow-3:  0 1px 0 rgba(44,46,45, 0.06), 0 18px 40px -16px rgba(44,46,45, 0.18);
+  --gk-shadow-ember: 0 8px 28px -12px rgba(232,155,79, 0.55);
+
+  /* ---------- Motion ---------- */
+  --gk-ease:        cubic-bezier(0.2, 0.7, 0.2, 1.0); /* "warm" default */
+  --gk-ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --gk-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1); /* gentle overshoot, only for Ember accents */
+  --gk-dur-1: 120ms;
+  --gk-dur-2: 220ms;
+  --gk-dur-3: 420ms;
+
+  /* ---------- Layout / grid ---------- */
+  --gk-grid-gutter:    24px;
+  --gk-page-max:       1200px;
+  --gk-page-pad:       clamp(20px, 4vw, 56px);
+}
+
+/* ============================================================
+   Semantic element styles — apply by default
+   ============================================================ */
+
+html, body {
+  background: var(--gk-bg);
+  color: var(--gk-fg-1);
+  font-family: var(--gk-font-sans);
+  font-size: var(--gk-body-size);
+  line-height: var(--gk-body-leading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--gk-ember); color: var(--gk-hearth-ink); }
+
+h1, h2, h3, h4 {
+  font-family: var(--gk-font-serif);
+  color: var(--gk-fg-brand);
+  margin: 0;
+  text-wrap: balance;
+}
+h1 { font-size: var(--gk-h1-size); line-height: var(--gk-h1-leading); letter-spacing: var(--gk-h1-tracking); font-weight: var(--gk-h1-weight); }
+h2 { font-size: var(--gk-h2-size); line-height: var(--gk-h2-leading); letter-spacing: var(--gk-h2-tracking); font-weight: var(--gk-h2-weight); }
+h3 { font-size: var(--gk-h3-size); line-height: var(--gk-h3-leading); letter-spacing: var(--gk-h3-tracking); font-weight: var(--gk-h3-weight); }
+
+.gk-display-1 { font-family: var(--gk-font-serif); font-size: var(--gk-display-1-size); line-height: var(--gk-display-1-leading); letter-spacing: var(--gk-display-1-tracking); font-weight: var(--gk-display-1-weight); color: var(--gk-fg-brand); }
+.gk-display-2 { font-family: var(--gk-font-serif); font-size: var(--gk-display-2-size); line-height: var(--gk-display-2-leading); letter-spacing: var(--gk-display-2-tracking); font-weight: var(--gk-display-2-weight); color: var(--gk-fg-brand); }
+
+p { margin: 0 0 var(--gk-space-4); color: var(--gk-fg-1); text-wrap: pretty; }
+small, .gk-caption { font-size: var(--gk-caption-size); line-height: var(--gk-caption-leading); color: var(--gk-fg-2); }
+
+.gk-eyebrow {
+  font-family: var(--gk-font-mono);
+  font-size: var(--gk-eyebrow-size);
+  letter-spacing: var(--gk-eyebrow-tracking);
+  text-transform: uppercase;
+  font-weight: var(--gk-eyebrow-weight);
+  color: var(--gk-fg-3);
+}
+.gk-eyebrow--accent { color: var(--gk-ember-deep); }
+.gk-eyebrow--on-dark { color: var(--gk-ember); }
+
+code, .gk-mono, .gk-data {
+  font-family: var(--gk-font-mono);
+  font-feature-settings: "tnum" 1;
+}
+.gk-data-xl { font-family: var(--gk-font-mono); font-size: var(--gk-data-xl-size); color: var(--gk-fg-brand); letter-spacing: -0.01em; }
+.gk-data-lg { font-family: var(--gk-font-mono); font-size: var(--gk-data-lg-size); color: var(--gk-fg-brand); }
+
+a {
+  color: var(--gk-fg-brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--gk-border-strong);
+  transition: text-decoration-color var(--gk-dur-2) var(--gk-ease);
+}
+a:hover { text-decoration-color: var(--gk-ember); }
+
+hr { border: 0; border-top: var(--gk-hairline); margin: var(--gk-space-8) 0; }
