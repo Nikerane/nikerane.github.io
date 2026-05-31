@@ -1015,6 +1015,26 @@
         <span class="film-loading__dot"></span>
         Starting the film…
       </div>
+      <!-- custom transport bar -->
+      <div id="filmControls" class="film-controls" hidden>
+        <button id="filmRestart" class="fc-btn" aria-label="Restart">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.9"/></svg>
+        </button>
+        <button id="filmPlayPause" class="fc-btn fc-btn--play" aria-label="Pause">
+          <svg id="fcPauseIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <svg id="fcPlayIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <span id="filmCurrent" class="fc-time">0:00</span>
+        <div class="fc-scrub-wrap">
+          <div class="fc-scrub-track"><div id="filmFill" class="fc-scrub-fill"></div></div>
+          <input type="range" id="filmScrub" class="fc-scrub-input" min="0" max="72" step="0.1" value="0" aria-label="Seek">
+        </div>
+        <span class="fc-time">1:12</span>
+        <button id="filmFullscreen" class="fc-btn" aria-label="Enter fullscreen">
+          <svg id="fcFsEnter" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <svg id="fcFsExit" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+        </button>
+      </div>
     </div>
     <p class="film-note">A one-minute explainer of the model — the energy surplus, the empty basement, the battery, and the network it forms.</p>
   </div>
@@ -1254,12 +1274,89 @@
       if (wantPlay) play();
     }
 
+    function fmt(t) {
+      const m = Math.floor(t / 60), s = Math.floor(t % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function startControls() {
+      const controls = document.getElementById('filmControls');
+      const playPauseBtn = document.getElementById('filmPlayPause');
+      const pauseIcon = document.getElementById('fcPauseIcon');
+      const playIcon = document.getElementById('fcPlayIcon');
+      const scrub = document.getElementById('filmScrub');
+      const fill = document.getElementById('filmFill');
+      const current = document.getElementById('filmCurrent');
+      const DURATION = 72;
+      let isPlaying = true, dragging = false;
+
+      controls.hidden = false;
+
+      // Poll time every 100 ms
+      setInterval(function() {
+        if (dragging) return;
+        try {
+          const t = iframe.contentWindow.__getTime ? iframe.contentWindow.__getTime() : 0;
+          const pct = Math.min(1, t / DURATION) * 100;
+          fill.style.width = pct + '%';
+          scrub.value = t;
+          current.textContent = fmt(t);
+        } catch(e) {}
+      }, 100);
+
+      // Scrub
+      scrub.addEventListener('pointerdown', function() { dragging = true; });
+      scrub.addEventListener('pointerup', function() { dragging = false; });
+      scrub.addEventListener('input', function() {
+        const t = parseFloat(this.value);
+        fill.style.width = (t / DURATION * 100) + '%';
+        current.textContent = fmt(t);
+        try { iframe.contentWindow.__seek && iframe.contentWindow.__seek(t); } catch(e) {}
+      });
+
+      // Play / pause
+      playPauseBtn.addEventListener('click', function() {
+        isPlaying = !isPlaying;
+        try { isPlaying ? iframe.contentWindow.__play() : iframe.contentWindow.__pause(); } catch(e) {}
+        pauseIcon.style.display = isPlaying ? '' : 'none';
+        playIcon.style.display  = isPlaying ? 'none' : '';
+      });
+
+      // Restart
+      document.getElementById('filmRestart').addEventListener('click', function() {
+        try { iframe.contentWindow.__seek(0); iframe.contentWindow.__play(); } catch(e) {}
+        isPlaying = true;
+        pauseIcon.style.display = ''; playIcon.style.display = 'none';
+      });
+
+      // Fullscreen
+      const fsBtn = document.getElementById('filmFullscreen');
+      const fsEnter = document.getElementById('fcFsEnter');
+      const fsExit  = document.getElementById('fcFsExit');
+      fsBtn.addEventListener('click', function() {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else {
+          const el = frame;
+          (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+        }
+      });
+      function onFSChange() {
+        const inFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        fsEnter.style.display = inFS ? 'none' : '';
+        fsExit.style.display  = inFS ? '' : 'none';
+      }
+      document.addEventListener('fullscreenchange', onFSChange);
+      document.addEventListener('webkitfullscreenchange', onFSChange);
+    }
+
     function play() {
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = '';
       poster.style.display = 'none';
       if (loading) loading.hidden = true;
       try { iframe.contentWindow.__seek(0); iframe.contentWindow.__play && iframe.contentWindow.__play(); } catch (e) {}
+      startControls();
     }
 
     // listen for the film's ready signal
@@ -1284,6 +1381,47 @@
     });
   })();
 </script>
+
+<!-- ============== FILM CONTROLS STYLES ============== -->
+<style>
+  .film-controls {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(10,10,10,0.88);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .fc-btn {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px;
+    background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.14);
+    color: var(--gk-bone); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 120ms; padding: 0;
+  }
+  .fc-btn:hover { background: rgba(255,255,255,0.18); }
+  .fc-btn--play { background: rgba(232,155,79,0.18); border-color: rgba(232,155,79,0.3); }
+  .fc-btn--play:hover { background: rgba(232,155,79,0.28); }
+  .fc-time {
+    font-family: var(--gk-font-mono); font-size: 12px;
+    color: rgba(245,241,234,0.65); white-space: nowrap;
+    flex-shrink: 0; min-width: 34px; text-align: center;
+  }
+  .fc-scrub-wrap {
+    flex: 1; position: relative; height: 20px;
+    display: flex; align-items: center; cursor: pointer; min-width: 0;
+  }
+  .fc-scrub-track {
+    position: absolute; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden;
+  }
+  .fc-scrub-fill {
+    height: 100%; background: var(--gk-ember); border-radius: 999px; width: 0%;
+  }
+  .fc-scrub-input {
+    position: absolute; left: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; margin: 0;
+  }
+</style>
 
 <!-- ============== TWEAKS ============== -->
 <div id="tweaks-root"></div>
