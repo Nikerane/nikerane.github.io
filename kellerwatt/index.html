@@ -1237,8 +1237,14 @@
       iframe.src = 'KellerWatt Film (standalone).html';
       iframe.title = 'KellerWatt — the film';
       iframe.setAttribute('allow', 'autoplay; fullscreen');
-      iframe.style.visibility = 'hidden';      // compiled in background, revealed on play
+      // opacity:0 keeps the iframe alive on iOS (visibility:hidden freezes it)
+      iframe.style.opacity = '0';
+      iframe.style.pointerEvents = 'none';
       frame.insertBefore(iframe, frame.firstChild);
+      // fallback: if postMessage never fires (some mobile browsers), trigger on load
+      iframe.addEventListener('load', function () {
+        setTimeout(function () { if (!ready) onReady(); }, 400);
+      });
     }
 
     function onReady() {
@@ -1249,13 +1255,14 @@
     }
 
     function play() {
-      iframe.style.visibility = 'visible';
+      iframe.style.opacity = '1';
+      iframe.style.pointerEvents = '';
       poster.style.display = 'none';
       if (loading) loading.hidden = true;
       try { iframe.contentWindow.__seek(0); iframe.contentWindow.__play && iframe.contentWindow.__play(); } catch (e) {}
     }
 
-    // listen for the film's ready signal (and a load fallback)
+    // listen for the film's ready signal
     window.addEventListener('message', function (e) {
       if (e.data && e.data.kwFilm === 'ready') onReady();
     });
