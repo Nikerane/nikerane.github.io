@@ -354,14 +354,16 @@
   .film-frame {
     position: relative;
     width: 100%;
-    max-width: 1080px;
-    margin: 0 auto;
     aspect-ratio: 16 / 9;
     border-radius: var(--gk-radius-xl);
     overflow: hidden;
     border: 0.5px solid rgba(245, 241, 234, 0.16);
     box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.65);
     background: var(--gk-hearth-ink);
+  }
+  .film-frame.controls-open {
+    border-radius: var(--gk-radius-xl) var(--gk-radius-xl) 0 0;
+    border-bottom: none;
   }
   .film-poster {
     position: absolute; inset: 0;
@@ -386,13 +388,13 @@
     position: relative;
     font-family: var(--gk-font-serif); font-weight: 500;
     font-size: clamp(30px, 4vw, 48px); letter-spacing: -0.02em;
-    color: var(--gk-bone); margin-bottom: 14px;
+    color: var(--gk-bone); margin-bottom: clamp(6px, 1.5vw, 14px);
   }
   .film-poster__title {
     position: relative;
     font-family: var(--gk-font-serif); font-weight: 500; font-style: italic;
     font-size: clamp(16px, 2vw, 22px); letter-spacing: -0.01em;
-    color: rgba(245, 241, 234, 0.6); text-align: center; margin: 0 0 30px;
+    color: rgba(245, 241, 234, 0.6); text-align: center; margin: 0 0 clamp(16px, 3vw, 30px);
   }
   .film-poster__play {
     position: relative;
@@ -792,6 +794,11 @@
 
     .footer__row { flex-direction: column; }
   }
+  @media (max-width: 540px) {
+    .form { flex-direction: column; gap: 6px; }
+    .form__input { width: 100%; padding: 14px; }
+    .form__btn { width: 100%; padding: 14px; font-size: 15px; border-radius: var(--gk-radius-sm); }
+  }
   @media (min-width: 881px) {
     .nav__burger { display: none; }
   }
@@ -1000,29 +1007,31 @@
       <h2 class="section__title">See how a basement becomes a power plant.</h2>
     </div>
 
-    <div class="film-frame" id="filmFrame">
-      <button class="film-poster" id="filmPoster" aria-label="Play the KellerWatt film">
-        <span class="film-poster__word">KellerWatt</span>
-        <p class="film-poster__title">Renting basements. Powering Germany.</p>
-        <span class="film-poster__play">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-          Play the film
-        </span>
-      </button>
-      <div class="film-loading" id="filmLoading" hidden>
-        <span class="film-loading__dot"></span>
-        Starting the film…
+    <div class="film-wrap" id="filmWrap">
+      <div class="film-frame" id="filmFrame">
+        <button class="film-poster" id="filmPoster" aria-label="Play the KellerWatt film">
+          <span class="film-poster__word">KellerWatt</span>
+          <p class="film-poster__title">Renting basements. Powering Germany.</p>
+          <span class="film-poster__play">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Play the film
+          </span>
+        </button>
+        <div class="film-loading" id="filmLoading" hidden>
+          <span class="film-loading__dot"></span>
+          Starting the film…
+        </div>
       </div>
-      <!-- custom transport bar -->
+      <!-- transport bar lives BELOW the film, not inside it -->
       <div id="filmControls" class="film-controls" hidden>
         <button id="filmRestart" class="fc-btn" aria-label="Restart">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.9"/></svg>
         </button>
-        <button id="filmPlayPause" class="fc-btn fc-btn--play" aria-label="Pause">
-          <svg id="fcPauseIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          <svg id="fcPlayIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M8 5v14l11-7z"/></svg>
+        <button id="filmPlayPause" class="fc-btn fc-btn--play" aria-label="Play">
+          <svg id="fcPauseIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <svg id="fcPlayIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <span id="filmCurrent" class="fc-time">0:00</span>
         <div class="fc-scrub-wrap">
@@ -1261,9 +1270,20 @@
       iframe.style.opacity = '0';
       iframe.style.pointerEvents = 'none';
       frame.insertBefore(iframe, frame.firstChild);
-      // fallback: if postMessage never fires (some mobile browsers), trigger on load
+      // Fallback: poll every 200ms until __play is available (bundler + React can take 5-15s).
+      // The 400ms approach was wrong — the iframe `load` event fires before the bundler runs.
       iframe.addEventListener('load', function () {
-        setTimeout(function () { if (!ready) onReady(); }, 400);
+        var check = setInterval(function () {
+          if (ready) { clearInterval(check); return; }
+          try {
+            if (typeof iframe.contentWindow.__play === 'function') {
+              clearInterval(check);
+              onReady();
+            }
+          } catch(e) {}
+        }, 200);
+        // Give up after 45 seconds (safety valve)
+        setTimeout(function () { clearInterval(check); }, 45000);
       });
     }
 
@@ -1279,6 +1299,22 @@
       return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
+    function hideBuiltInTransport() {
+      try {
+        var doc = iframe.contentDocument;
+        if (!doc || !doc.head) { setTimeout(hideBuiltInTransport, 400); return; }
+        // The Stage's built-in PlaybackBar uses only inline styles (no class names).
+        // Its one unique attribute is maxWidth:680 → rendered as "max-width: 680px" in the DOM.
+        // The wrapper div above it has bottom:0px + z-index:10.
+        var s = doc.createElement('style');
+        s.id = 'kw-hide-builtin';
+        s.textContent =
+          '#film-root div[style*="max-width: 680px"] { display: none !important; }' +
+          '#film-root div[style*="bottom: 0px"] { display: none !important; }';
+        doc.head.appendChild(s);
+      } catch(e) {}
+    }
+
     function startControls() {
       const controls = document.getElementById('filmControls');
       const playPauseBtn = document.getElementById('filmPlayPause');
@@ -1288,11 +1324,13 @@
       const fill = document.getElementById('filmFill');
       const current = document.getElementById('filmCurrent');
       const DURATION = 72;
-      let isPlaying = true, dragging = false;
+      let isPlaying = false, dragging = false;
 
       controls.hidden = false;
+      frame.classList.add('controls-open');
+      hideBuiltInTransport();
 
-      // Poll time every 100 ms
+      // Poll time every 100 ms; also sync play/pause icon to actual state
       setInterval(function() {
         if (dragging) return;
         try {
@@ -1301,12 +1339,24 @@
           fill.style.width = pct + '%';
           scrub.value = t;
           current.textContent = fmt(t);
+          // Auto-detect when film is actually playing (st.on exposed via __kw)
+          const on = iframe.contentWindow.__kw && iframe.contentWindow.__kw.on;
+          if (on !== isPlaying) {
+            isPlaying = on;
+            pauseIcon.style.display = isPlaying ? '' : 'none';
+            playIcon.style.display  = isPlaying ? 'none' : '';
+          }
         } catch(e) {}
       }, 100);
 
       // Scrub
       scrub.addEventListener('pointerdown', function() { dragging = true; });
-      scrub.addEventListener('pointerup', function() { dragging = false; });
+      scrub.addEventListener('pointerup', function() {
+        dragging = false;
+        if (isPlaying) {
+          try { iframe.contentWindow.__play && iframe.contentWindow.__play(); } catch(e) {}
+        }
+      });
       scrub.addEventListener('input', function() {
         const t = parseFloat(this.value);
         fill.style.width = (t / DURATION * 100) + '%';
@@ -1314,19 +1364,29 @@
         try { iframe.contentWindow.__seek && iframe.contentWindow.__seek(t); } catch(e) {}
       });
 
-      // Play / pause
+      // Play / pause — use actual film state, not a local toggle
       playPauseBtn.addEventListener('click', function() {
-        isPlaying = !isPlaying;
-        try { isPlaying ? iframe.contentWindow.__play() : iframe.contentWindow.__pause(); } catch(e) {}
-        pauseIcon.style.display = isPlaying ? '' : 'none';
-        playIcon.style.display  = isPlaying ? 'none' : '';
+        try {
+          const kw = iframe.contentWindow.__kw;
+          const on = kw && kw.on;
+          if (on) {
+            iframe.contentWindow.__pause && iframe.contentWindow.__pause();
+          } else {
+            // At the very start (t < 1 s), do a full seek-then-play so
+            // it reliably starts even if the Stage initialised paused.
+            const t = kw ? kw.t : 0;
+            if (t < 1) iframe.contentWindow.__seek && iframe.contentWindow.__seek(0);
+            iframe.contentWindow.__play && iframe.contentWindow.__play();
+          }
+        } catch(e) {}
+        // Icon will sync via the 100 ms poll
       });
 
       // Restart
       document.getElementById('filmRestart').addEventListener('click', function() {
-        try { iframe.contentWindow.__seek(0); iframe.contentWindow.__play(); } catch(e) {}
-        isPlaying = true;
-        pauseIcon.style.display = ''; playIcon.style.display = 'none';
+        try { iframe.contentWindow.__seek && iframe.contentWindow.__seek(0);
+              iframe.contentWindow.__play && iframe.contentWindow.__play(); } catch(e) {}
+        // Icon syncs via poll
       });
 
       // Fullscreen
@@ -1337,7 +1397,7 @@
         if (document.fullscreenElement || document.webkitFullscreenElement) {
           (document.exitFullscreen || document.webkitExitFullscreen).call(document);
         } else {
-          const el = frame;
+          const el = document.getElementById('filmWrap') || frame;
           (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
         }
       });
@@ -1384,12 +1444,13 @@
 
 <!-- ============== FILM CONTROLS STYLES ============== -->
 <style>
+  .film-wrap { width: 100%; max-width: 1080px; margin: 0 auto; }
+  .film-controls[hidden] { display: none !important; }
   .film-controls {
-    position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
     display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: rgba(10,10,10,0.88);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    padding: 10px 26px;
+    background: rgba(10,10,10,0.92);
+    border-radius: 0 0 var(--gk-radius-xl) var(--gk-radius-xl);
   }
   .fc-btn {
     flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px;
