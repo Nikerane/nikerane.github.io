@@ -771,6 +771,29 @@
       border-color: var(--gk-border-strong);
       color: var(--gk-slate);
     }
+    /* open mobile menu */
+    .nav--open .nav__burger { background: rgba(245, 241, 234, 0.12); color: var(--gk-bone); }
+    .nav--open .nav__links {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      padding: 8px 24px 22px;
+      background: rgba(16, 30, 26, 0.98);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 0.5px solid rgba(245, 241, 234, 0.16);
+    }
+    .nav--open .nav__links a:not(.nav__cta) {
+      padding: 15px 2px;
+      font-size: 17px;
+      color: var(--gk-bone);
+      border-bottom: 0.5px solid rgba(245, 241, 234, 0.10);
+    }
+    .nav--open .nav__cta { margin-top: 14px; text-align: center; }
 
     .hero { min-height: 92vh; min-height: 92svh; }
     .hero__bg { background-position: 72% center; }
@@ -1004,7 +1027,7 @@
   <div class="hex-tex" aria-hidden="true"></div>
   <div class="wrap">
     <div class="section__head" style="text-align: center; margin-left: auto; margin-right: auto;">
-      <p class="eyebrow">The story · 60 seconds</p>
+      <p class="eyebrow">The story · 72 seconds</p>
       <h2 class="section__title">See how a basement becomes a power plant.</h2>
     </div>
 
@@ -1194,6 +1217,30 @@
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  })();
+
+  // Mobile menu: hamburger toggles the nav links panel
+  (function () {
+    const nav = document.getElementById('nav');
+    const burger = nav && nav.querySelector('.nav__burger');
+    const links = nav && nav.querySelector('.nav__links');
+    if (!nav || !burger || !links) return;
+    const setOpen = (open) => {
+      nav.classList.toggle('nav--open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+    setOpen(false);
+    burger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setOpen(!nav.classList.contains('nav--open'));
+    });
+    // close after tapping a link, on outside click, or Escape
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('click', (e) => {
+      if (nav.classList.contains('nav--open') && !nav.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
   })();
 
   // Smooth anchor scrolling with nav offset
