@@ -1405,6 +1405,14 @@
         const inFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
         fsEnter.style.display = inFS ? 'none' : '';
         fsExit.style.display  = inFS ? '' : 'none';
+        // Lock to landscape on mobile when fullscreen (Android Chrome; iOS ignores this)
+        try {
+          if (inFS) {
+            screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(function(){});
+          } else {
+            screen.orientation && screen.orientation.unlock && screen.orientation.unlock();
+          }
+        } catch(e) {}
       }
       document.addEventListener('fullscreenchange', onFSChange);
       document.addEventListener('webkitfullscreenchange', onFSChange);
