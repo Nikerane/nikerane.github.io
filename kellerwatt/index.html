@@ -1443,6 +1443,13 @@
     }
 
     poster.addEventListener('click', function () {
+      // On real mobile (narrow viewport), the iframe approach triggers OOM on some devices
+      // because both the landing page and the 1.8 MB film bundle share one renderer process.
+      // Navigating to the film page directly unloads the landing page first, freeing memory.
+      if (window.innerWidth < 1024 && 'ontouchstart' in window) {
+        window.location.href = 'kw-film.html';
+        return;
+      }
       startPreload();
       if (ready) { play(); }
       else { wantPlay = true; if (loading) loading.hidden = false; poster.style.display = 'none'; }
