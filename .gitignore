@@ -1,11 +1,8 @@
 # macOS
 .DS_Store
-.AppleDouble
-.LSOverride
 
 # Windows
 Thumbs.db
-ehthumbs.db
 Desktop.ini
 
 # Editor / IDE
@@ -22,7 +19,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # KellerWatt render intermediates
-kellerwatt/kw-film.webm
+kellerwatt/tools/kw-film.webm
 
 # Environment / secrets
 .env
