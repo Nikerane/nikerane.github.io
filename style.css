@@ -22,6 +22,7 @@ body {
 }
 
 .card {
+  width: 100%;
   max-width: 350px;
   margin: auto;
   overflow-y: hidden;
@@ -73,17 +74,26 @@ body {
 .card.is-active .card-fullname,
 .card.is-active .card-jobtitle {
   left: 86px;
+  right: 16px;
   -webkit-transform: none;
           transform: none;
+  margin: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
 }
 .card.is-active .card-fullname {
-  bottom: 18px;
+  top: 17px;
+  bottom: auto;
   font-size: 19px;
+  line-height: 1.2;
 }
 .card.is-active .card-jobtitle {
-  bottom: 16px;
+  top: 47px;
+  bottom: auto;
   letter-spacing: 1px;
   font-size: 10px;
+  line-height: 1.2;
 }
 
 .card-header {
@@ -463,5 +473,46 @@ header{
 @media only screen and (max-width: 500px){
   .heading{
     display: none;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  body {
+    display: block;
+    min-height: 100svh;
+    padding: 16px;
+    background-attachment: scroll;
+  }
+
+  header {
+    width: 100%;
+    justify-content: center;
+    padding: 0 0 16px;
+  }
+
+  nav,
+  .nav__links {
+    width: 100%;
+  }
+
+  .nav__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 16px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__links li {
+    padding: 0;
+  }
+
+  .nav__links li a {
+    font-size: 15px;
+  }
+
+  .card {
+    margin: 12px auto;
   }
 }
