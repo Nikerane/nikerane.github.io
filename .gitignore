@@ -12,14 +12,11 @@ Desktop.ini
 *.swo
 *~
 
-# Node (kellerwatt/tools/render-film.mjs)
+# Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# KellerWatt render intermediates
-kellerwatt/tools/kw-film.webm
 
 # Environment / secrets
 .env
